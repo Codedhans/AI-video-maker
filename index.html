@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Maker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 AI Video Maker</h1>
+            <p>Create stunning videos with AI-powered effects</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar - Controls -->
+            <aside class="sidebar">
+                <div class="control-section">
+                    <h2>Video Settings</h2>
+                    
+                    <div class="form-group">
+                        <label for="videoTitle">Video Title</label>
+                        <input type="text" id="videoTitle" placeholder="Enter video title" value="My AI Video">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="videoDuration">Duration (seconds)</label>
+                        <input type="number" id="videoDuration" min="1" max="300" value="10">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="videoFormat">Format</label>
+                        <select id="videoFormat">
+                            <option value="1080p">1080p (Full HD)</option>
+                            <option value="720p">720p (HD)</option>
+                            <option value="480p">480p (SD)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bgColor">Background Color</label>
+                        <input type="color" id="bgColor" value="#1a1a2e">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2>Text Content</h2>
+                    
+                    <div class="form-group">
+                        <label for="mainText">Main Text</label>
+                        <textarea id="mainText" placeholder="Enter main text for video" rows="3">Welcome to AI Video Maker</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="textColor">Text Color</label>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="textSize">Text Size</label>
+                        <input type="range" id="textSize" min="20" max="100" value="48">
+                        <span id="textSizeValue">48px</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="textFont">Font</label>
+                        <select id="textFont">
+                            <option value="Arial">Arial</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Courier New">Courier New</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2>Effects</h2>
+                    
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="fadeEffect"> Fade Effect
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="scaleEffect"> Scale Animation
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="rotateEffect"> Rotation
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="musicTrack">Background Music</label>
+                        <select id="musicTrack">
+                            <option value="none">None</option>
+                            <option value="upbeat">Upbeat</option>
+                            <option value="calm">Calm</option>
+                            <option value="dramatic">Dramatic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2>Images</h2>
+                    
+                    <div class="form-group">
+                        <label for="imageUpload">Upload Image</label>
+                        <input type="file" id="imageUpload" accept="image/*">
+                    </div>
+
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+            </aside>
+
+            <!-- Main Preview Area -->
+            <main class="preview-area">
+                <div class="preview-container">
+                    <h2>Preview</h2>
+                    <canvas id="videoPreview" width="720" height="480"></canvas>
+                    <p class="preview-note">Live preview of your video</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="previewBtn" class="btn btn-primary">▶ Preview</button>
+                    <button id="generateBtn" class="btn btn-success">✨ Generate Video</button>
+                    <button id="downloadBtn" class="btn btn-secondary">⬇ Download</button>
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+            </main>
+        </div>
+
+        <footer>
+            <p>AI Video Maker • Create professional videos in seconds</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
