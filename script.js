@@ -7,6 +7,7 @@ class AIVideoMaker {
         this.isGenerating = false;
         this.isPlaying = false;
         this.videoData = null;
+        this.pollInterval = null;
         this.init();
     }
 
@@ -92,10 +93,11 @@ class AIVideoMaker {
             const duration = parseInt(document.getElementById('videoDuration').value);
             const numFrames = parseInt(document.getElementById('numFrames').value);
             const apiKey = document.getElementById('apiKey').value;
+            const aiModel = document.getElementById('aiModel').value;
 
             // Check if using real API or demo
-            if (apiKey) {
-                await this.generateWithAPI(prompt, numFrames, duration, apiKey);
+            if (apiKey && apiKey.trim() !== '') {
+                await this.generateWithAPI(prompt, numFrames, duration, apiKey, aiModel);
             } else {
                 await this.generateDemo(prompt, numFrames, duration);
             }
@@ -161,16 +163,169 @@ class AIVideoMaker {
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    async generateWithAPI(prompt, numFrames, duration, apiKey) {
-        // This would connect to real AI video generation APIs
-        // Placeholder for integration with:
-        // - Replicate API (for Stable Diffusion)
-        // - Hugging Face (for various models)
-        // - Custom backend
+    async generateWithAPI(prompt, numFrames, duration, apiKey, aiModel) {
+        this.showStatus('🚀 Connecting to AI API...', 'info');
+        this.updateGenerationInfo('Connecting to API', 10, 0);
 
-        // For now, show warning and fall back to demo
-        this.showStatus('⚠️ API integration in progress. Using demo generation.', 'warning');
-        await this.generateDemo(prompt, numFrames, duration);
+        try {
+            // Use Replicate API for video generation
+            const videoUrl = await this.callReplicateAPI(prompt, apiKey, aiModel);
+            
+            if (!videoUrl) {
+                throw new Error('Failed to generate video');
+            }
+
+            this.showStatus('📹 Fetching generated video...', 'info');
+            this.updateGenerationInfo('Processing video', 50, 0);
+
+            // Convert video URL to frames
+            await this.extractFramesFromVideo(videoUrl, numFrames);
+
+            this.updateGenerationInfo('Complete', 100, numFrames);
+
+        } catch (error) {
+            console.error('API Error:', error);
+            this.showStatus(`⚠️ API error: ${error.message}. Falling back to demo mode.`, 'warning');
+            
+            // Fallback to demo if API fails
+            const numFrames = parseInt(document.getElementById('numFrames').value);
+            const duration = parseInt(document.getElementById('videoDuration').value);
+            await this.generateDemo(prompt, numFrames, duration);
+        }
+    }
+
+    async callReplicateAPI(prompt, apiKey, aiModel) {
+        // Format: https://api.replicate.com/v1/predictions
+        // Using Stable Diffusion Video or similar model
+        
+        const modelMap = {
+            'stable-diffusion': 'stability-ai/stable-diffusion-3',
+            'dalle3': 'openai/dall-e-3',
+            'midjourney': 'stability-ai/stable-diffusion-3'
+        };
+
+        const selectedModel = modelMap[aiModel] || modelMap['stable-diffusion'];
+
+        // Create prediction
+        const predictionResponse = await fetch('https://api.replicate.com/v1/predictions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${apiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                version: selectedModel,
+                input: {
+                    prompt: prompt,
+                    width: this.canvas.width,
+                    height: this.canvas.height,
+                    num_outputs: 1,
+                    num_inference_steps: 50,
+                    guidance_scale: 7.5
+                }
+            })
+        });
+
+        if (!predictionResponse.ok) {
+            throw new Error(`API Error: ${predictionResponse.statusText}`);
+        }
+
+        const prediction = await predictionResponse.json();
+        const predictionId = prediction.id;
+
+        this.showStatus(`⏳ Processing prediction ${predictionId}...`, 'info');
+
+        // Poll for completion
+        return new Promise((resolve, reject) => {
+            let pollCount = 0;
+            const maxPolls = 120; // 10 minutes with 5-second intervals
+
+            const pollPrediction = async () => {
+                try {
+                    const statusResponse = await fetch(
+                        `https://api.replicate.com/v1/predictions/${predictionId}`,
+                        {
+                            headers: {
+                                'Authorization': `Token ${apiKey}`,
+                            }
+                        }
+                    );
+
+                    if (!statusResponse.ok) {
+                        throw new Error(`Status check failed: ${statusResponse.statusText}`);
+                    }
+
+                    const status = await statusResponse.json();
+                    const progress = Math.min(50 + (pollCount / maxPolls) * 40, 90);
+                    this.updateGenerationInfo(`Processing (${status.status})`, progress, 0);
+
+                    if (status.status === 'succeeded') {
+                        if (status.output && status.output.length > 0) {
+                            resolve(status.output[0]);
+                        } else {
+                            reject(new Error('No output generated'));
+                        }
+                    } else if (status.status === 'failed') {
+                        reject(new Error(status.error || 'Prediction failed'));
+                    } else if (pollCount < maxPolls) {
+                        pollCount++;
+                        setTimeout(pollPrediction, 5000); // Poll every 5 seconds
+                    } else {
+                        reject(new Error('Prediction timeout'));
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            pollPrediction();
+        });
+    }
+
+    async extractFramesFromVideo(videoUrl, numFrames) {
+        // Create a temporary video element to extract frames
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            video.crossOrigin = 'anonymous';
+            video.src = videoUrl;
+            
+            video.onloadedmetadata = () => {
+                this.frames = [];
+                const duration = video.duration;
+                let framesExtracted = 0;
+
+                const extractFrame = () => {
+                    if (framesExtracted >= numFrames) {
+                        resolve();
+                        return;
+                    }
+
+                    const time = (framesExtracted / numFrames) * duration;
+                    video.currentTime = time;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = this.canvas.width;
+                    canvas.height = this.canvas.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    this.frames.push(canvas);
+                    framesExtracted++;
+
+                    const percentage = Math.round((framesExtracted / numFrames) * 100);
+                    this.updateGenerationInfo('Extracting frames', 90 + (percentage * 0.1), framesExtracted);
+
+                    // Use setTimeout to allow time for seeking
+                    setTimeout(extractFrame, 100);
+                };
+
+                extractFrame();
+            };
+
+            video.onerror = () => {
+                reject(new Error('Failed to load video'));
+            };
+        });
     }
 
     drawAnimatedContent(ctx, canvas, progress, effect, keywords) {
