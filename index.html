@@ -3,142 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Maker</title>
+    <title>AI Text-to-Video Maker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎬 AI Video Maker</h1>
-            <p>Create stunning videos with AI-powered effects</p>
+            <h1>🎬 AI Text-to-Video Maker</h1>
+            <p>Generate stunning videos from text prompts using AI</p>
         </header>
 
         <div class="main-content">
-            <!-- Sidebar - Controls -->
+            <!-- Input Section -->
             <aside class="sidebar">
                 <div class="control-section">
-                    <h2>Video Settings</h2>
+                    <h2>Video Generation</h2>
                     
                     <div class="form-group">
-                        <label for="videoTitle">Video Title</label>
-                        <input type="text" id="videoTitle" placeholder="Enter video title" value="My AI Video">
+                        <label for="videoPrompt">Describe Your Video</label>
+                        <textarea 
+                            id="videoPrompt" 
+                            placeholder="E.g., 'Create a video of a cat sitting on a wooden table in a sunny room' or 'A drone flying over mountains at sunset'"
+                            rows="4">A cat playing with a ball in the living room</textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="videoDuration">Duration (seconds)</label>
-                        <input type="number" id="videoDuration" min="1" max="300" value="10">
+                        <input type="number" id="videoDuration" min="1" max="60" value="10">
                     </div>
 
                     <div class="form-group">
-                        <label for="videoFormat">Format</label>
+                        <label for="videoFormat">Video Quality</label>
                         <select id="videoFormat">
-                            <option value="1080p">1080p (Full HD)</option>
-                            <option value="720p">720p (HD)</option>
                             <option value="480p">480p (SD)</option>
+                            <option value="720p" selected>720p (HD)</option>
+                            <option value="1080p">1080p (Full HD)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="bgColor">Background Color</label>
-                        <input type="color" id="bgColor" value="#1a1a2e">
-                    </div>
-                </div>
-
-                <div class="control-section">
-                    <h2>Text Content</h2>
-                    
-                    <div class="form-group">
-                        <label for="mainText">Main Text</label>
-                        <textarea id="mainText" placeholder="Enter main text for video" rows="3">Welcome to AI Video Maker</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="textColor">Text Color</label>
-                        <input type="color" id="textColor" value="#ffffff">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="textSize">Text Size</label>
-                        <input type="range" id="textSize" min="20" max="100" value="48">
-                        <span id="textSizeValue">48px</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="textFont">Font</label>
-                        <select id="textFont">
-                            <option value="Arial">Arial</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Verdana">Verdana</option>
-                            <option value="Comic Sans MS">Comic Sans MS</option>
-                            <option value="Courier New">Courier New</option>
+                        <label for="aiModel">AI Model</label>
+                        <select id="aiModel">
+                            <option value="stable-diffusion">Stable Diffusion (Fast)</option>
+                            <option value="dalle3">DALL-E 3</option>
+                            <option value="midjourney">Midjourney Style</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="control-section">
-                    <h2>Effects</h2>
-                    
+                    <div class="form-group">
+                        <label for="numFrames">Number of Frames</label>
+                        <input type="number" id="numFrames" min="3" max="30" value="10">
+                        <small>More frames = smoother animation</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transitionEffect">Transition Effect</label>
+                        <select id="transitionEffect">
+                            <option value="fade">Fade</option>
+                            <option value="slide">Slide</option>
+                            <option value="zoom">Zoom</option>
+                            <option value="morph">Morph</option>
+                        </select>
+                    </div>
+
                     <div class="form-group checkbox-group">
                         <label>
-                            <input type="checkbox" id="fadeEffect"> Fade Effect
+                            <input type="checkbox" id="addMusic" checked> Add Background Music
                         </label>
                     </div>
 
                     <div class="form-group checkbox-group">
                         <label>
-                            <input type="checkbox" id="scaleEffect"> Scale Animation
-                        </label>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="rotateEffect"> Rotation
+                            <input type="checkbox" id="addCaption"> Add Auto-Generated Captions
                         </label>
                     </div>
 
                     <div class="form-group">
-                        <label for="musicTrack">Background Music</label>
-                        <select id="musicTrack">
-                            <option value="none">None</option>
-                            <option value="upbeat">Upbeat</option>
-                            <option value="calm">Calm</option>
-                            <option value="dramatic">Dramatic</option>
+                        <label for="aspectRatio">Aspect Ratio</label>
+                        <select id="aspectRatio">
+                            <option value="16:9">16:9 (Widescreen)</option>
+                            <option value="9:16">9:16 (Portrait)</option>
+                            <option value="1:1">1:1 (Square)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="control-section">
-                    <h2>Images</h2>
+                    <h2>API Configuration</h2>
                     
                     <div class="form-group">
-                        <label for="imageUpload">Upload Image</label>
-                        <input type="file" id="imageUpload" accept="image/*">
+                        <label for="apiKey">API Key (Optional)</label>
+                        <input type="password" id="apiKey" placeholder="Enter your API key for real AI generation">
+                        <small>Supports Replicate, Hugging Face, or local processing</small>
                     </div>
-
-                    <div id="imagePreview" class="image-preview"></div>
                 </div>
             </aside>
 
-            <!-- Main Preview Area -->
+            <!-- Preview Section -->
             <main class="preview-area">
                 <div class="preview-container">
-                    <h2>Preview</h2>
-                    <canvas id="videoPreview" width="720" height="480"></canvas>
-                    <p class="preview-note">Live preview of your video</p>
+                    <h2>Video Preview</h2>
+                    <div class="video-display">
+                        <canvas id="videoPreview" width="720" height="480"></canvas>
+                    </div>
+                    <p class="preview-note" id="previewNote">Your AI-generated video will appear here</p>
+                </div>
+
+                <div class="generation-info" id="generationInfo" style="display: none;">
+                    <div class="info-item">
+                        <span class="label">Status:</span>
+                        <span class="value" id="statusValue">Initializing...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Progress:</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Frames Generated:</span>
+                        <span class="value" id="framesCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Estimated Time:</span>
+                        <span class="value" id="estimatedTime">--:--</span>
+                    </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button id="previewBtn" class="btn btn-primary">▶ Preview</button>
                     <button id="generateBtn" class="btn btn-success">✨ Generate Video</button>
-                    <button id="downloadBtn" class="btn btn-secondary">⬇ Download</button>
+                    <button id="previewBtn" class="btn btn-primary" disabled>▶ Play Preview</button>
+                    <button id="downloadBtn" class="btn btn-secondary" disabled>⬇ Download</button>
+                    <button id="resetBtn" class="btn btn-reset">🔄 Reset</button>
                 </div>
 
                 <div id="statusMessage" class="status-message"></div>
+
+                <div class="tips-section">
+                    <h3>💡 Tips for Better Results:</h3>
+                    <ul>
+                        <li>Use descriptive keywords: colors, lighting, mood, style</li>
+                        <li>Example: "A serene beach sunset with orange and pink skies"</li>
+                        <li>Be specific about actions: "person running", "water flowing"</li>
+                        <li>Mention style: "cinematic", "anime", "oil painting"</li>
+                    </ul>
+                </div>
             </main>
         </div>
 
         <footer>
-            <p>AI Video Maker • Create professional videos in seconds</p>
+            <p>AI Text-to-Video Maker • Transform your imagination into videos</p>
         </footer>
     </div>
 
